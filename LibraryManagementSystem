@@ -1,0 +1,175 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class Book {
+    private String title;
+    private String author;
+    private boolean available;
+
+    public Book(String title, String author) {
+        this.title = title;
+        this.author = author;
+        this.available = true;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void borrow() {
+        available = false;
+    }
+
+    public void returnBook() {
+        available = true;
+    }
+
+    @Override
+    public String toString() {
+        return "Title: " + title + ", Author: " + author + ", Available: " + available;
+    }
+}
+
+class User {
+ 
+}
+
+class Librarian {
+    private String username;
+    private String password;
+
+    public Librarian(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    public boolean login(String enteredUsername, String enteredPassword) {
+        return username.equals(enteredUsername) && password.equals(enteredPassword);
+    }
+}
+
+class Library {
+    private List<Book> books;
+    private List<User> users;
+    private Librarian librarian;
+
+    public Library(String librarianUsername, String librarianPassword) {
+        books = new ArrayList<>();
+        users = new ArrayList<>();
+        librarian = new Librarian(librarianUsername, librarianPassword);
+    }
+
+    public void addBook(Book book) {
+        books.add(book);
+    }
+
+    public void displayBooks() {
+        System.out.println("Books in the library:");
+        for (Book book : books) {
+            System.out.println(book);
+        }
+    }
+
+    public Book findBook(String title) {
+        for (Book book : books) {
+            if (book.getTitle().equalsIgnoreCase(title) && book.isAvailable()) {
+                return book;
+            }
+        }
+        return null;
+    }
+	 public Book findborrowedBook(String title) {
+        for (Book book : books) {
+            if (book.getTitle().equalsIgnoreCase(title) && !book.isAvailable()) {
+                return book;
+            }
+        }
+        return null;
+    }
+
+    public boolean librarianLogin(String username, String password) {
+        return librarian.login(username, password);
+    }
+}
+
+public class LibraryManagementSystem {
+    public static void main(String[] args) {
+        Library library = new Library("admin", "password");
+        Scanner scanner = new Scanner(System.in);
+
+        library.addBook(new Book("Smith", "Introduction to Java John"));
+        library.addBook(new Book("Johnson", "Data Structures Alice"));
+        library.addBook(new Book("Brown", "Python Programming David"));
+        library.addBook(new Book("White", "Machine Learning Basics Emily"));
+        library.addBook(new Book("Clark", "Web Development Fundamentals Michael"));
+
+        System.out.print("Librarian Login\nUsername: ");
+        String username = scanner.nextLine();
+        System.out.print("Password: ");
+        String password = scanner.nextLine();
+
+        if (library.librarianLogin(username, password)) {
+            System.out.println("Librarian login successful.");
+
+            while (true) {
+                System.out.println("\nOptions:");
+                System.out.println("1. Display books");
+                System.out.println("2. Borrow a book");
+                System.out.println("3. Return a book");
+                System.out.println("4. Exit");
+                System.out.print("Enter your choice: ");
+                int choice = scanner.nextInt();
+                scanner.nextLine(); 
+
+                switch (choice) {
+                    case 1:
+                        library.displayBooks();
+                        break;
+                    case 2:
+                        System.out.print("Enter the title of the book to borrow: ");
+                        String titleToBorrow = scanner.nextLine();
+                        Book borrowedBook = library.findBook(titleToBorrow);
+                        if (borrowedBook != null) {
+                            borrowedBook.borrow();
+                            System.out.println("You have borrowed the book: " + borrowedBook.getTitle());
+                        } else {
+                            System.out.println("Book not available for borrowing.");
+                        }
+                        break;
+                    case 3:
+    System.out.print("Enter the title of the book to return: ");
+    String titleToReturn = scanner.nextLine();
+    Book returnedBook = library.findborrowedBook(titleToReturn);
+    if (returnedBook != null && !returnedBook.isAvailable()) {
+        returnedBook.returnBook();
+        System.out.println("You have returned the book: " + returnedBook.getTitle());
+    } else if (returnedBook != null && returnedBook.isAvailable()) {
+        System.out.println("You can't return a book that is not borrowed.");
+    } else {
+        System.out.println("Book not found or already returned.");
+    }
+    break;
+                    case 4:
+                        System.out.println("Exiting the program.");
+                        System.exit(0);
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please enter a valid option.");
+                }
+            }
+        } else {
+            System.out.println("Librarian login failed.");
+        }
+
+        scanner.close();
+    }
+}
